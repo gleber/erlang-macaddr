@@ -11,4 +11,4 @@
 
 all_test_() ->
     [{generator, macaddr_basic_test, basic_test_},
-    {generator, macaddr_basic_test, matching_test_}].
+     {generator, macaddr_basic_test, matching_test_}].

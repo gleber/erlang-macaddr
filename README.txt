@@ -27,8 +27,7 @@ To get a single MAC address
 How do I build it?
 ---------------------------
 make
-make test   # will also make clean before running tests
-make docs
+make tests
 
 
 

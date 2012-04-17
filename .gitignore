@@ -4,3 +4,5 @@
 ebin/*
 semantic.cache
 coverage
+.eunit
+doc

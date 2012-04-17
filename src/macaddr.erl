@@ -41,19 +41,19 @@
 -export([mac_matcher/2]).
 
 file_exists(FileName) ->
-  case filelib:is_regular(FileName) of
-    true ->
-      true;
-    %% Even if its not a regular file, it might still exist
-    %% /dev/null exhibits this behavior
-    false ->
-      case filelib:last_modified(FileName) of
-        0 ->
-          false;
-        _ ->
-          true
-      end
-  end.
+    case filelib:is_regular(FileName) of
+        true ->
+            true;
+        %% Even if its not a regular file, it might still exist
+        %% /dev/null exhibits this behavior
+        false ->
+            case filelib:last_modified(FileName) of
+                0 ->
+                    false;
+                _ ->
+                    true
+            end
+    end.
 
 identify_null_file() ->
     case file_exists("/dev/null") of
@@ -74,15 +74,15 @@ get_interface_info(Cmd) ->
 %%% @doc Exported for testability.   Internal use only.
 -spec mac_matcher(Line::string(), Acc::[string()]) -> [string()].
 mac_matcher(Line, Acc) ->
-  MACRegex = " (?<FOO>([0-9A-F][0-9A-F][:\\-]){5}[0-9A-F][0-9A-F])([^:\\-0-9A-F]|$)",
-  case re:run(Line, MACRegex, [caseless, {capture,['FOO']}]) of
-    {match, [{Start, Length}]} ->
-      MACAddress = string:strip(lists:sublist(Line, Start, Length+1)),
-      {ok, StdMACAddress, _} =  regexp:gsub(MACAddress, "-", ":"),
-      [StdMACAddress|Acc];
-    _ ->
-      Acc
-  end.
+    MACRegex = " (?<FOO>([0-9A-F][0-9A-F][:\\-]){5}[0-9A-F][0-9A-F])([^:\\-0-9A-F]|$)",
+    case re:run(Line, MACRegex, [caseless, {capture,['FOO']}]) of
+        {match, [{Start, Length}]} ->
+            MACAddress = string:strip(lists:sublist(Line, Start, Length+1)),
+            StdMACAddress =  re:replace(MACAddress, "-", ":", [{return, list}]),
+            [StdMACAddress|Acc];
+        _ ->
+            Acc
+    end.
 
 %%% @doc Retrieve list of MAC addresses for machine
 -spec(address_list() -> [string()]).
@@ -92,17 +92,17 @@ address_list() ->
 
 %%% @doc Extract MAC addresses from command results
 extract_mac_addresses(CmdOutput) ->
-  Candidates0 = lists:foldl(fun mac_matcher/2, [], CmdOutput),
+    Candidates0 = lists:foldl(fun mac_matcher/2, [], CmdOutput),
 
-  %% Length check to avoid some false hits from the regex because re module does not seem to support more complex regex to handle it
-  Candidates = lists:reverse(lists:filter(fun(Elem) ->  (Elem /= "00:00:00:00:00:00" andalso
-                                                         Elem /= "00-00-00-00-00-00" andalso
-                                                         length(Elem) =< 17 ) end, Candidates0)),
-  case length(Candidates) of
-    0 -> throw({error, {no_mac_address_candidate, "No MAC Address"}});
-    _ -> ok
-  end,
-  lists:usort(Candidates).  % remove duplicates
+    %% Length check to avoid some false hits from the regex because re module does not seem to support more complex regex to handle it
+    Candidates = lists:reverse(lists:filter(fun(Elem) ->  (Elem /= "00:00:00:00:00:00" andalso
+                                                           Elem /= "00-00-00-00-00-00" andalso
+                                                           length(Elem) =< 17 ) end, Candidates0)),
+    case length(Candidates) of
+        0 -> throw({error, {no_mac_address_candidate, "No MAC Address"}});
+        _ -> ok
+    end,
+    lists:usort(Candidates).  % remove duplicates
 
 %%% @doc Retrieve interface info from operating system
 extract_interface_info() ->
@@ -113,7 +113,7 @@ extract_interface_info(Interface) ->
     execute_commands(Cmds).
 
 execute_commands(Cmds) ->
-    {ok, Results} = regexp:split(string:join([get_interface_info(Cmd) || Cmd <- Cmds], " "), "[\r\n]"),
+    Results = re:split(string:join([get_interface_info(Cmd) || Cmd <- Cmds], " "), "[\r\n]", [{return, list}]),
     [R || R <- Results,
           R /= []].
 

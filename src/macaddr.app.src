@@ -2,7 +2,7 @@
 
 {application, macaddr,
  [{description, "Macaddr"},
-  {vsn, "%VSN%"},
+  {vsn, "0.2"},
   {modules, [macaddr]},
   {registered,[]},
   {applications, [stdlib]},

@@ -17,6 +17,6 @@ basic_test_() ->
     ].
 
 matching_test_() ->
-  [?_assertEqual(["99:99:99:99:99:99"], macaddr:mac_matcher("   addr 99:99:99:99:99:99", [])),
-   ?_assertEqual([], macaddr:mac_matcher("   notaddr  99:99:99:99:99:99:99:99:99", []))
-  ].
+    [?_assertEqual(["99:99:99:99:99:99"], macaddr:mac_matcher("   addr 99:99:99:99:99:99", [])),
+     ?_assertEqual([], macaddr:mac_matcher("   notaddr  99:99:99:99:99:99:99:99:99", []))
+    ].
